@@ -1,5 +1,7 @@
 # aws-lambda-apigateway-twilio-msg-sender
 
+# Integrate twilio in aws lambda function
+
 ## architecture
 ![arch](./assets/images/1.drawio.png)
 
@@ -71,10 +73,11 @@ p.s. remember to add environmental variable in lambda configuration tab.
 ```makefile
 .PHONY: build
 build:
-	GOARCH=amd64 GOOS=linux go build -o bootstrap main.go;\
+	GOOS=linux go build -tags lambda.norpc -o ./bootstrap main.go;\
 	zip bootstrap.zip bootstrap
 ```
 p.s. the output executable file name has to be bootstrap. remember to upload it to lambda console under code tab and change the handler name to main in Runtime settings.
+p.s.2. The aws-lambda-go library provides a build tag called lambda.norpc to remove all RPC logic from the built binary, reducing its size. Binary size contributes to Lambda cold-start time, so any reduction we make will help improve this metric.
 
 ### api gateway setup
 1. build api

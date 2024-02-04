@@ -21,8 +21,11 @@ func HandleRequest(ctx context.Context, event *Payload) (*string, error) {
 	if event == nil {
 		return nil, fmt.Errorf("received nil event")
 	}
-	SendSMS(*event)
-	message := fmt.Sprintf("Hello %s!", event.To)
+	resp, err := SendSMS(*event)
+	if err != nil {
+		return nil, err
+	}
+	message := fmt.Sprintf("Hello %s!", string(resp))
 	return &message, nil
 }
 
@@ -32,7 +35,7 @@ func main() {
 
 func SendSMS(payload Payload) (resp []byte, err error) {
 
-	from := os.Getenv("TWILIO_PHONE_NUMBER")
+	from := os.Getenv("from")
 	username := os.Getenv("username")
 	password := os.Getenv("password")
 
@@ -48,8 +51,7 @@ func SendSMS(payload Payload) (resp []byte, err error) {
 
 	t, err := client.Api.CreateMessage(params)
 	if err != nil {
-		return
+		return nil, err
 	}
-	resp, err = json.Marshal(*t)
-	return
+	return json.Marshal(*t)
 }
